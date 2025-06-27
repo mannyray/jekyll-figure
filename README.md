@@ -1,144 +1,73 @@
 # jekyll-figure
 
-A liquid tag for Jekyll that generates `<figure>` elements.
+Forked repo of the work in https://github.com/paulrobertlloyd/jekyll-figure.
 
-[![Gem version](https://img.shields.io/gem/v/jekyll-figure.svg)](https://rubygems.org/gems/jekyll-figure)
-[![Build status](https://github.com/paulrobertlloyd/jekyll-figure/workflows/test/badge.svg)](https://github.com/paulrobertlloyd/jekyll-figure/actions)
+## What I changed
 
-## Installation
+Slightly modified the code structure for easier use and import in my personal website based to how I structure other personal plugins (e.g. https://github.com/mannyray/jekyll-side-bar) - the code is contained within `lib/jekyll-figure` where the folder `jekyll-figure` needs to be copied to your jekyll site's `_plugin` directory. 
 
-1. Add `gem 'jekyll-figure'` to your site’s Gemfile and run `bundle`
-2. Add the following to your site’s `_config.yml`:
+In addition, I added a default styling option that is to be placed in your site's `css/main.scss` file:
 
-```yaml
-plugins:
-  - jekyll-figure
+```css
+---
+---
+
+.figcaption-default {
+    text-align: center;
+    font-style: italic;
+    color: grey;
+    
+    a {
+        text-decoration: underline;
+    }
+
+    /* unvisited link */
+    a:link {
+        color: black;
+    }
+
+    /* visited link */
+    a:visited {
+        color: black;
+    }
+
+    /* mouse over link */
+    a:hover {
+        color: black;
+    }
+
+    /* selected link */
+    a:active {
+        color: black;
+    }
+}
 ```
 
-Note: If you are using a Jekyll version less than 3.5.0, use the `gems` key instead of `plugins`.
+as the original `lib/jekyll-figure/jekyll-figure.rb` was slightly modified to now have `figure_class = " class\=\"figcaption-default\""` in the block:
 
-## Usage
-
-This plugin provides a liquid tag that enables you to generate a `<figure>` element. It takes optional `caption` and `class` parameters.
-
-```liquid
-{% figure [caption:"Caption (markdown)"] [class:"class1 class2"] %}
-Figure content (markdown)
-{% endfigure %}
+```ruby
+# Class name(s)
+figure_class = " class\=\"figcaption-default\""
+unless @class.nil?
+  figure_class = @class.gsub!(/\A"|"\Z/, "")
+  figure_class = " class\=\"#{figure_class}\""
+end
 ```
-
-### Examples
-
-In simplest usage:
-
-```liquid
-{% figure %}
-Content
-{% endfigure %}
-```
-
-```html
-<figure>
-  <p>Content</p>
-</figure>
-```
-
-You can provide a caption, for which any markdown will be rendered:
-
-```liquid
-{% figure caption:"*Markdown* caption" %}
-Content
-{% endfigure %}
-```
-
-```html
-<figure>
-  <p>Content</p>
-  <figcaption><em>Markdown</em> caption</figcaption>
-</figure>
-```
-
-You can also provide a class name(s) for CSS styling:
-
-```liquid
-{% figure caption:"A caption" class:"classname" %}
-Content
-{% endfigure %}
-```
-
-```html
-<figure class="classname">
-  <p>Content</p>
-  <figcaption>A caption</figcaption>
-</figure>
-```
-
-The `caption` parameter also accepts liquid markup:
-
-```liquid
-{% figure caption:"{{ page.title }}" %}
-Content
-{% endfigure %}
-```
-
-```html
-<figure>
-  <p>Content</p>
-  <figcaption>The title of my page</figcaption>
-</figure>
-```
-
-You can also add labels and reference them:
-
-```liquid
-{% figure caption:"A caption." label:example %}
-An example figure that can be referenced later.
-{% endfigure %}
-
-You can see an example in {% figref example %}.
-```
-
-```html
-<figure id="example">
-  <p>An example figure that can be referenced later.</p>
-  <figcaption><em>Figure 1:</em> A caption.</figcaption>
-</figure>
-
-<p>You can see an example in <a href="#example">figure 1</a></p>
-```
-
-The word ‘Figure’ in the figcaption is translated according to the `lang` you set in the yaml header of your post. If your language is not supported simple set `figure` to the yaml header of your post to the value you want to use instead of ‘Figure’.
-
-## Configuration
-
-Any markdown provided within the `{% figure %}` block is rendered using Jekyll’s Markdown parser, [Kramdown](https://kramdown.gettalong.org). However, this means images and other content will be wrapped within `<p>` tags, like so:
-
-```html
-<figure>
-  <p><img src="/path/to/image.jpg" alt="Image"></p>
-</figure>
-```
-
-To disable this behaviour, in your Jekyll configuration set the `paragraphs` value for this plugin to `false`:
-
-```yaml
-plugins:
-  - jekyll-figure
-
-jekyll-figure:
-  paragraphs: false
-```
-
-Note however that this will remove *all* paragraph tags, even those nested within other elements.
 
 ## Testing
 
-1. `bundle install`
-2. `bundle exec rake spec`
+`test_site` was added to demonstrate the import and `figcaption-default` styling. For this I did not move the `jekyll-figure` within `test_site/plugins` but instead modified `test_site/_config.yml` to have specified `plugins_dir: ./../lib` to use this repository's `lib/jekyll-figure` directory.
 
-## Contributing
+To be able to use `figcaption-default`, in addition to creating `css/main.scss`, I had to modify `test_site/_layouts/head.html` to have:
 
-1. Fork the project
-2. Create a descriptively named feature branch
-3. Add your feature
-4. Submit a pull request
+```html
+<head>
+    <link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.baseurl }}">
+</head>
+```
+
+To run the site in `test_site`, `cd` into the directory and run `jekyll serve`. You will see the caption:
+
+![](assets/screenshot.png)
+
+Succesfully using captions in https://szonov.com/programming/2023/12/25/the-bionicle-man/ as well.
